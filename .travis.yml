@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: T1fabmEH/2NLMMnc33N5P32gGgpRJflMrqr8nAqro3EVDPOsRkB8cichIBXO4883HD1e2fLkgcaw+8xe4YyNqT59qGLWcLlhPUk9kR1rS1Fi88PPcpaz2fb6n1MLwtRsntj5VMYc8j28b7I9kehLd7h3psbnYI8AhXZcYamM3DUgbPIt+NqU2h0qkUFIWg6a0+WDG9o8fSMrO5Q8+2WLjm9RPxwWZrUtHK+whNhfnTvPufAJ7NoR3oZxa0YldIdqRnxLv1aDSf+zVAs5sdqYm/8WZSy2ghrYSF8CjMqRe0lBv1zNVFqm8WOrxuUTSmsI13GwWcOH9V88VYgnl8rAL7b318lrIIbFsS/8fb1SoHT4bWQDkoJJzZIzeoK0KPlIba0svyr/U1gsh0M/0rPuenPdYE2As8DHN+O2oIAu+OpJf/ScJ4dSh7aFCRqkb0u3cn6DsyAn1uJpag5xWBiBpTwoLjwynPQXOI0hB8zuQlV/BsPQaSYWyMTJXSLKtfV2BYiEq9p/6jK5O2fxLsVjwIT/aXRDQ0HtCMPL9f9e8QhJk778S2ytvv6e+gJW61T+5h+o01JXwfDBuIo8bKrhv7+S9UEmUR3lKKwQOuHl+lCQV9SIHEB8ffIZWinj9Xww8SwJFf5D4Psnw1o1Ao9tGSQB3REgnId6y4mRseKZF+Y=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Writings-of-Thomas-Paine---Volume-1--1774-1779---The-American-Crisis_3741
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
